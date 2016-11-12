@@ -14,7 +14,7 @@ class Bank(val allowedAttempts: Integer = 3) {
       try {
         while (!Thread.interrupted()) {
           processTransactions
-          Thread.sleep(100)
+          Thread.sleep(10)
         }
       } finally {
 

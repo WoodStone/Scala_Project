@@ -45,6 +45,9 @@ class Transaction(val transactionsQueue: TransactionQueue,
     }
 
     try {
+      if (allowedAttemps < 1) {
+        throw new IllegalAmountException()
+      }
       if (from.uid < to.uid) from synchronized {
         to synchronized {
           doTransaction
@@ -58,21 +61,13 @@ class Transaction(val transactionsQueue: TransactionQueue,
     } catch {
       case iae: IllegalAmountException => status = TransactionStatus.FAILED
       case noFunds: NoSufficientFundsException =>
-        if (allowedAttemps - 1 == 0) {
-          status = TransactionStatus.FAILED
-        } else {
-          transactionsQueue.push(new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttemps - 1))
-        }
+        transactionsQueue.push(new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttemps - 1))
     } finally {
       if (status != TransactionStatus.PENDING) {
         processedTransactions.push(this)
       }
     }
-
-
-
     // Extend this method to satisfy new requirements.
-
 
   }
 }
